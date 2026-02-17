@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: recordstore
+      POSTGRES_USER: recordstore
+      POSTGRES_PASSWORD: recordstore
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # no ports (avoid conflict with local postgres)
+
+  backend:
+    build:
+      context: ./RecordStore
+    working_dir: /app
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/recordstore
+      SPRING_DATASOURCE_USERNAME: recordstore
+      SPRING_DATASOURCE_PASSWORD: recordstore
+      # Optional: makes devtools restart more reliable in containers
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount your backend source
+      - ./RecordStore:/app
+      # Cache Maven deps
+      - m2:/root/.m2
+    command: ["./mvnw", "spring-boot:run"]
+
+  frontend:
+    build:
+      context: ./RecordStore-frontend
+    working_dir: /app
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    environment:
+      # Important on macOS/Windows for file watching inside Docker
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+    volumes:
+      # Mount your frontend source
+      - ./RecordStore-frontend:/app
+      # Keep node_modules inside container (prevents host override)
+      - frontend_node_modules:/app/node_modules
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+
+volumes:
+  pgdata:
+  m2:
+  frontend_node_modules:
