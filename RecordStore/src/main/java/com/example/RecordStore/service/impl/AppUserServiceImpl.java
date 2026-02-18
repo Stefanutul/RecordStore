@@ -48,6 +48,7 @@ public class AppUserServiceImpl implements AppUserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
     }
 
+
     @Override
     @Transactional(readOnly = true)
     public List<AppUser> getAll() {
@@ -59,5 +60,12 @@ public class AppUserServiceImpl implements AppUserService {
         AppUser user = getByUsername(username);
         user.getRoles().add(role); // roles is a mutable Set, allowed
         return repository.save(user);
+    }
+
+   @Transactional(readOnly = true)
+   @Override
+   public <Optional>AppUser getById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
     }
 }
