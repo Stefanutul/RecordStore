@@ -5,6 +5,7 @@ import com.example.RecordStore.model.Role;
 
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface AppUserService {
@@ -14,10 +15,12 @@ public interface AppUserService {
     AppUser getByUsername(String username);
 
 
-    <Optional>AppUser getById(Long id);
+    AppUser getById(Long id);
 
     List<AppUser> getAll();
 
     AppUser addRole(String username, Role role);
+
+    AppUser addUser(AppUser user);
 
     }
