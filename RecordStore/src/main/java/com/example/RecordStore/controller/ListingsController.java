@@ -34,6 +34,7 @@ public class ListingsController {
     public ListingDto.Response updateListing(@PathVariable Long listingId,
                                              @Valid @RequestBody ListingDto.UpdateRequest req) {
         return listingService.update(listingId, currentUsername(), req);
+
     }
 
     @GetMapping
